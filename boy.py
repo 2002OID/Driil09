@@ -1,6 +1,6 @@
 import math
 
-from pico2d import load_image
+from pico2d import load_image, get_time
 from sdl2 import SDL_KEYDOWN, SDLK_SPACE
 
 
@@ -20,11 +20,14 @@ class Idle:
     @staticmethod  # 클래스를 여러개의 함수를 grouping 하는 용도로 활용 가능
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
+        if get_time() - boy.statr_time > 5:
+            boy.state_machine.hendle_event(('TIME_OUT', 0))
         print('Idel Doing')  # 디버깅용
 
     @staticmethod
     def enter(boy):
         boy.frame = 0
+        boy.statr_time = get_time() #경과시간
         print('Idel Entering')  # 디버깅용
 
     @staticmethod
