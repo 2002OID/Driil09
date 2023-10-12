@@ -133,7 +133,8 @@ class AutoRun():
 
     @staticmethod
     def draw(boy):
-        boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y + 20, 150, 150)
+        boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y + 20
+                            , 150, 150)
 
 class StateMachine:
     def __init__(self, boy):
@@ -142,7 +143,7 @@ class StateMachine:
         self.table = {
             Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep, a_down: AutoRun},
             Run: {right_down: Idle, left_down: Idle, left_up: Idle, right_up: Idle},
-            Sleep: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Idle},
+            Sleep: {right_down: Run, left_down: Run, left_up: Run, right_up: Run, space_down: Idle, a_down: AutoRun},
             AutoRun: {right_down: Run, left_down: Run, time_out: Idle}
 
         }
