@@ -1,3 +1,5 @@
+import math
+
 from pico2d import load_image
 
 
@@ -19,12 +21,31 @@ class Idle:
     @staticmethod
     def draw(boy):
         boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+class Sleep:
+
+    @staticmethod  # 클래스를 여러개의 함수를 grouping 하는 용도로 활용 가능
+    def do(boy):
+        boy.frame = (boy.frame + 1) % 8
+        print('드르렁 드르렁')  # 디버깅용
+
+    @staticmethod
+    def enter(boy):
+        boy.frame = 0
+        print('눕기')  # 디버깅용
+
+    @staticmethod
+    def exit(boy):
+        print('일어서기')  # 디버깅용
+
+    @staticmethod
+    def draw(boy):
+        boy.image.clip_composite_draw(boy.frame * 100, boy.action * 100, 100, 100, math.pi / 2, '', boy.x - 25, boy.y - 25, 100, 100)
 
 
 class StateMachine:
     def __init__(self, boy):
         self.boy = boy
-        self.cur_state = Idle
+        self.cur_state = Sleep
 
 
     def start(self):
@@ -58,5 +79,5 @@ class Boy:
         pass
 
     def draw(self):
-        self.image.clip_draw(self.frame * 100, self.action * 100, 100, 100, self.x, self.y)
+        #self.image.clip_draw(self.frame * 100, self.action * 100, 100, 100, self.x, self.y)
         self.state_machine.draw()
