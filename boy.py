@@ -1,26 +1,41 @@
 import math
 
 from pico2d import load_image
+from sdl2 import SDL_KEYDOWN, SDLK_SPACE
+
+
+def space_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
+
+
+def time_out(e):
+    return e[0] == 'TIME_OUT'
+
+
+def time_out_5(e):
+    return e[0] == 'TIME_OUT' and e[1] == 5.0
 
 
 class Idle:
     @staticmethod  # 클래스를 여러개의 함수를 grouping 하는 용도로 활용 가능
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
-        print('Idel Doing') #디버깅용
+        print('Idel Doing')  # 디버깅용
 
     @staticmethod
     def enter(boy):
         boy.frame = 0
-        print('Idel Entering')  #디버깅용
+        print('Idel Entering')  # 디버깅용
 
     @staticmethod
     def exit(boy):
-        print('Idel Exiting')   #디버깅용
+        print('Idel Exiting')  # 디버깅용
 
     @staticmethod
     def draw(boy):
         boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+
+
 class Sleep:
 
     @staticmethod  # 클래스를 여러개의 함수를 grouping 하는 용도로 활용 가능
@@ -39,22 +54,33 @@ class Sleep:
 
     @staticmethod
     def draw(boy):
-        boy.image.clip_composite_draw(boy.frame * 100, boy.action * 100, 100, 100, math.pi / 2, '', boy.x - 25, boy.y - 25, 100, 100)
+        boy.image.clip_composite_draw(boy.frame * 100, boy.action * 100, 100, 100, math.pi / 2, '', boy.x - 25,
+                                      boy.y - 25, 100, 100)
 
 
 class StateMachine:
     def __init__(self, boy):
         self.boy = boy
         self.cur_state = Sleep
-
+        self.table = {
+            Sleep: {space_down: Idle},
+            Idle: {time_out: Sleep}
+        }
 
     def start(self):
         self.cur_state.enter(self.boy)
 
+    def hendle_event(self, e):
+        for cheak_event, next_state in self.table[self.cur_state].items():
+            if cheak_event(e):
+                self.cur_state.exit(self.boy)
+                self.cur_state = next_state
+                self.cur_state.enter(self.boy)
+                return True
+        return False
 
     def update(self):
         self.cur_state.do(self.boy)
-
 
     def draw(self):
         self.cur_state.draw(self.boy)
@@ -72,12 +98,13 @@ class Boy:
         self.state_machine.start()
 
     def update(self):
-        #self.frame = (self.frame + 1) % 8
+        # self.frame = (self.frame + 1) % 8
         self.state_machine.update()
 
     def handle_event(self, event):
+        self.state_machine.hendle_event(('INPUT', event))
         pass
 
     def draw(self):
-        #self.image.clip_draw(self.frame * 100, self.action * 100, 100, 100, self.x, self.y)
+        # self.image.clip_draw(self.frame * 100, self.action * 100, 100, 100, self.x, self.y)
         self.state_machine.draw()
